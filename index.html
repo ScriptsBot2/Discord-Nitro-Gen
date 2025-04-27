@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Discord Nitro Generator</title>
+  <style>
+    body {
+      background-color: black;
+      color: white;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      height: 100vh;
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+    }
+    input, button {
+      padding: 12px 20px;
+      font-size: 16px;
+      margin-top: 10px;
+      border: none;
+      border-radius: 5px;
+    }
+    input {
+      width: 300px;
+    }
+    button {
+      background-color: #7289da;
+      color: white;
+      cursor: pointer;
+    }
+    #generateSection, #waitingMessage {
+      display: none;
+      margin-top: 20px;
+    }
+    #status {
+      margin-top: 15px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>Discord Nitro Generator</h1>
+
+  <div id="keySection">
+    <input type="text" id="keyInput" placeholder="Enter your key" />
+    <br />
+    <button onclick="validateKey()">Submit Key</button>
+    <p id="error" style="color: red; margin-top: 10px;"></p>
+  </div>
+
+  <div id="waitingMessage">
+    <p>Generating, please wait...</p>
+  </div>
+
+  <div id="generateSection">
+    <button onclick="generateLink()">Generate Nitro</button>
+    <p id="status"></p>
+  </div>
+
+  <script>
+    const validKeys = ["KEY123", "NITRO456", "FREE789", "DISCORD321", "GENERATOR777"];
+    const usedKeys = [];
+    const generatedLinks = {}; // { code: "VALID" / "EXPIRED" / "INVALID" }
+
+    function validateKey() {
+      const input = document.getElementById("keyInput").value.trim();
+      const error = document.getElementById("error");
+
+      if (input === "") {
+        error.textContent = "Please enter a key.";
+        return;
+      }
+
+      if (usedKeys.includes(input)) {
+        error.textContent = "This key has already been used.";
+        return;
+      }
+
+      if (validKeys.includes(input)) {
+        usedKeys.push(input);
+        error.textContent = "";
+        document.getElementById("keySection").style.display = "none";
+        document.getElementById("waitingMessage").style.display = "block";
+
+        setTimeout(() => {
+          document.getElementById("waitingMessage").style.display = "none";
+          document.getElementById("generateSection").style.display = "block";
+        }, 2000);
+      } else {
+        error.textContent = "Invalid key.";
+      }
+    }
+
+    function generateLink() {
+      const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+      let code = "";
+      for (let i = 0; i < 16; i++) {
+        code += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+
+      const link = `https://discord.gift/${code}`;
+      const statusDisplay = document.getElementById("status");
+      document.querySelector("button").disabled = true;
+      statusDisplay.style.color = "white";
+      statusDisplay.textContent = "Checking code...";
+
+      setTimeout(() => {
+        let status;
+
+
+        if (generatedLinks[code]) {
+          status = generatedLinks[code];
+        } else {
+          const roll = Math.random();
+          
+          
+          if (roll < 0.00) {
+            status = "VALID";  // 1% chance for valid code
+          }
+          
+          else if (roll < 0.31) {
+            status = "EXPIRED";  // 30% chance for expired code
+          } else {
+            status = "INVALID";  // 69% chance for invalid code
+          }
+
+          generatedLinks[code] = status; // Save the generated status for consistency
+        }
+
+        // Show results based on the status
+        if (status === "VALID") {
+          statusDisplay.textContent = `VALID: ${link}`;
+          statusDisplay.style.color = "lime";
+          copyToClipboard(link);  // Copy valid link
+        } else if (status === "EXPIRED") {
+          statusDisplay.textContent = `EXPIRED: ${link}`;
+          statusDisplay.style.color = "orange";
+        } else {
+          statusDisplay.textContent = `INVALID: ${link}`;
+          statusDisplay.style.color = "red";
+        }
+
+        document.querySelector("button").disabled = false;
+      }, 1000); // 1s cooldown
+    }
+
+    // Function to copy to clipboard
+    function copyToClipboard(text) {
+      const textArea = document.createElement("textarea");
+      textArea.value = text;
+      document.body.appendChild(textArea);
+      textArea.select();
+      textArea.setSelectionRange(0, 99999);
+      try {
+        document.execCommand("copy");
+        alert("VALID! Copied to clipboard:\n" + text);
+      } catch (err) {
+        alert("Could not copy. Here's the valid link:\n" + text);
+      }
+      document.body.removeChild(textArea);
+    }
+  </script>
+</body>
+</html>
